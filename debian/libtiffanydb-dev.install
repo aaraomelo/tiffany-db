@@ -1,0 +1,9 @@
+usr/include/tiffanydb/sql_api.h
+usr/include/tiffanydb/pgwire_api.h
+usr/lib/*/libtiffanydb.a
+usr/lib/*/libtiffanydb.so
+usr/lib/*/pkgconfig/tiffanydb.pc
+usr/share/doc/libtiffanydb-dev/copyright
+usr/share/doc/libtiffanydb-dev/LICENSE
+usr/share/doc/libtiffanydb-dev/NOTICE
+usr/share/doc/libtiffanydb-dev/README

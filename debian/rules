@@ -1,0 +1,233 @@
+#!/usr/bin/make -f
+# debian/rules para libtiffanydb.
+#
+# ISTO E EMPACOTAMENTO, NAO REFATORACAO.
+#
+# O nucleo do produto nao e tocado: banco/sql.c, banco/pgwire.c, os headers
+# privados em banco/ e lib/, as assinaturas, a ABI e a convencao
+# "1 = sucesso" sao os mesmos antes e depois deste ficheiro. Este rules apenas
+# escolhe o que entra em cada .deb e em que caminho.
+
+# ---------------------------------------------------------------------------
+# H11 - versoes. Sao quatro coisas differentes e nao se confundem:
+#
+#   DEB_VERSION  1.0.0-1  versao do pacote Debian (produto + revisao)
+#   PC_VERSION   1.0.0     versao do produto, como o pkg-config a reporta
+#   SONAME       .so.1     a ABI. NAO se incrementa por se criar um .deb.
+#   formato persistente / pgwire
+#                         sao formato de dados e de protocolo; este
+#                         empacotamento nao os toca nem os versiona.
+# ---------------------------------------------------------------------------
+PKG_LIB_RT := libtiffanydb1
+PKG_LIB_DV := libtiffanydb-dev
+
+REALVER := 1.0.0
+SONAME  := libtiffanydb.so.1
+SOREV   := 1.0.0
+LIBFILE := libtiffanydb.so.$(SOREV)
+
+# ---------------------------------------------------------------------------
+# H3 - multiarch. NADA de x86_64 escrito a mao.
+#
+# Os ficheiros debian/*.install usam o glob usr/lib/*/ em vez do triplet: e o
+# mecanismo proprio do dpkg, e noutra arquitectura o caminho resolve-se sem que
+# ninguem edite nada. O triplet so e preciso aqui, para montar o .pc e para dizer
+# ao dh_makeshlibs onde procurar o objecto -- e sai do proprio dpkg.
+# ---------------------------------------------------------------------------
+MULTIARCH := $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+LIBDIR    := usr/lib/$(MULTIARCH)
+PKGCONFDIR:= $(LIBDIR)/pkgconfig
+INCDIR    := usr/include/tiffanydb
+DOCDEV    := usr/share/doc/libtiffanydb-dev
+
+# ---------------------------------------------------------------------------
+# G4 - conjunto oficial de flags do produto. CONGELADO.
+#
+#   -std=c99                    obrigatorio (o codigo e C99 estrito)
+#   -D_POSIX_C_SOURCE=200809L   OBRIGATORIO na linha de comando: sem isto
+#                               pread, pwrite, mkdir, fsync, ftruncate e
+#                               access ficam ocultos e a compilacao FALHA
+#   -DSQL_NO_MAIN -DPGWIRE_NO_MAIN
+#                               excluem o frontend interpretador; e o que torna
+#                               isto uma biblioteca e nao um executavel
+#   -D_DEFAULT_SOURCE           NAO vai aqui: banco/sql.c:76 ja a define, e a
+#                               duplicacao so produz o aviso
+#                               "_DEFAULT_SOURCE redefined"
+#   -g0                         sem info de debug: uma das razoes da
+#                               reprodutibilidade medida em G11
+#   -fPIC                       obrigatorio numa biblioteca partilhada
+#   -Wall -Wextra               mantidos de proposito: G mediu 341 + 14 avisos
+#                               e este empacotamento NAO os cala
+#
+# H4 - o LTO do Ubuntu e filtrado a mao, e e decisao de empacotamento com razao
+# registada. O Ubuntu 24.04 mete -flto=auto -ffat-lto-objects nos flags por
+# omissao e NAO tem um interruptor de dpkg-buildflags para o tirar (a feature
+# "lto" nao existe: pedi-la da warning). O LTO muda a geracao de codigo de uma
+# biblioteca cuja reprodutibilidade byte a byte foi medida em G11, e este
+# empacotamento existe para publicar o artefacto verificado. Todo o resto do
+# hardening da distro fica ligado: fortify, stack protector, relro, now, cf-protection.
+# ---------------------------------------------------------------------------
+CPPFLAGS_T := -D_POSIX_C_SOURCE=200809L -DSQL_NO_MAIN -DPGWIRE_NO_MAIN
+CFLAGS_T   := -std=c99 -O2 -g0 -fPIC -fno-common -Wall -Wextra
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+LTO_OFF := -flto=auto -ffat-lto-objects
+_BC := $(filter-out -g -O2 $(LTO_OFF),$(shell dpkg-buildflags --get CFLAGS))
+_BP := $(shell dpkg-buildflags --get CPPFLAGS)
+_BL := $(filter-out -pie $(LTO_OFF),$(shell dpkg-buildflags --get LDFLAGS))
+
+# "override ... :=" e NAO "+=", e esta e a parte que custa a descobrir.
+#
+# O dpkg-buildpackage exporta CFLAGS/CPPFLAGS/LDFLAGS no AMBIENTE antes de o make
+# ler este ficheiro. O make importa variaveis do ambiente como se fossem suas, e
+# um "+=" limita-se a acrescentar a cauda: o -flto=auto que se filtrava logo a
+# abaixo voltava pela porta do fundo e ficava no comando, porque aparecia
+# primeiro. Filter-out nao chega: tem de ser substituicao, nao acrescimo.
+override CPPFLAGS := $(_BP) $(CPPFLAGS_T)
+override CFLAGS   := $(_BC) $(CFLAGS_T)
+override LDFLAGS  := $(_BL) -Wl,-soname,$(SONAME) -Wl,--build-id=none
+
+B := debian/build
+
+# As DUAS unidades de traducao do produto. Mais nada e compilado.
+CORE_SRC := banco/sql.c
+WIRE_SRC := banco/pgwire.c
+
+%:
+	dh $@
+
+override_dh_auto_build:
+
+override_dh_auto_test:
+
+override_dh_auto_clean:
+	rm -rf debian/build debian/.debhelper debian/files debian/*.substvars
+	rm -rf debian/tmp debian/libtiffanydb1 debian/libtiffanydb-dev
+	rm -f  debian/*.postinst debian/*.prerm debian/*.debhelper.log
+
+# ---------------------------------------------------------------------------
+# Compilar e instalar. Tudo o que entra num .deb passa por aqui, nome a nome.
+# Nao ha nenhuma wildcard sobre a arvore do repositorio: e essa lista explicita
+# que garante H9 -- nada da arvore entra por accidente.
+# ---------------------------------------------------------------------------
+override_dh_auto_install:
+	mkdir -p $(B)
+
+	# --- H4: nenhum -flto, verificado e nao so esperado -------------------
+	# O LTO nao e desligavel por chave no Ubuntu 24.04 (medido: nenhuma das
+	# formas de DEB_BUILD_MAINT_OPTIONS o remove, e a injecta sempre). Fica
+	# filtrado a mao acima. Aqui verifica-se que nao voltou: se alguma vez
+	# voltar, o .a distribuido passa a levar IR de LTO e a.optimizacao do
+	# produto passa a correr dentro do compilador de QUEM CONSOME -- o que
+	# rebenta a reprodutibilidade e faz os avisos do sql.c aparecerem no
+	# build de quem liga. E um erro de build, nao um aviso.
+	@case " $(CFLAGS) $(CPPFLAGS) " in \
+	  *-flto*) echo "ERRO: -flto chegou aos flags deste build."; exit 1;; \
+	esac
+	@case " $(LDFLAGS) " in \
+	  *-flto*) echo "ERRO: -flto chegou ao LDFLAGS deste build."; exit 1;; \
+	esac
+
+	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c $(CORE_SRC) -o $(B)/sql.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c $(WIRE_SRC) -o $(B)/pgwire.o
+
+	# --- e a prova final, sobre os objectos ja escritos -------------------
+	@for o in $(B)/sql.o $(B)/pgwire.o; do \
+	  if readelf -S $$o | grep -q '\.gnu\.lto_'; then \
+	    echo "ERRO: $$o tem IR de LTO."; exit 1; \
+	  fi; \
+	done; echo "  (objectos sem IR de LTO, confirmado)"
+
+	# ar em modo determinista (predefinido no binutils actual): a segunda
+	# razao da reprodutibilidade de G11, a par de -g0.
+	rm -f $(B)/libtiffanydb.a
+	ar rcsD $(B)/libtiffanydb.a $(B)/sql.o $(B)/pgwire.o
+
+	$(CC) -shared $(LDFLAGS) -o $(B)/$(LIBFILE) $(B)/sql.o $(B)/pgwire.o
+
+	# --- o objecto partilhado, para o runtime -----------------------------
+	install -d debian/tmp/$(LIBDIR)
+	install -m 0644 $(B)/$(LIBFILE) debian/tmp/$(LIBDIR)/$(LIBFILE)
+
+	# --- os dois symlinks, declarados um a um -----------------------------
+	# O dh_makeshlibs NAO cria symlinks: so le os simbolos para o ficheiro de
+	# simbolos. Portanto sao criados aqui, nome a nome, para que a lista de
+	# ficheiros de cada pacote fique num unico sitio auditavel (H9), em vez de
+	# aparecer de um wildcard. O .so.1 e a SONAME e vai para o runtime; o .so e
+	# o symlink de link e vai para o -dev, como manda a convencao.
+	ln -sf $(LIBFILE) debian/tmp/$(LIBDIR)/$(SONAME)
+	ln -sf $(SONAME) debian/tmp/$(LIBDIR)/libtiffanydb.so
+
+	# --- a biblioteca estatica, para o development ------------------------
+	# H2 (avaliado): distribuida. O pkg-config devolve "-ltiffanydb" tambem em
+	# --static, e sem o .a esse caminho seria uma promessa sem conteudo. Sao
+	# 581 KB e e o mesmo .a que G8 exercise num link estatico real.
+	install -m 0644 $(B)/libtiffanydb.a debian/tmp/$(LIBDIR)/libtiffanydb.a
+
+	# --- os dois cabecalhos publicos, e so os dois ------------------------
+	# H2: cabecalhos internos nao se instalam por conveniencia. Quem inclui um
+	#header privado perde a fronteira estavel, e o produto tem 37 deles.
+	install -d debian/tmp/$(INCDIR)
+	install -m 0644 banco/sql_api.h    debian/tmp/$(INCDIR)/sql_api.h
+	install -m 0644 banco/pgwire_api.h debian/tmp/$(INCDIR)/pgwire_api.h
+
+	# --- pkg-config --------------------------------------------------------
+	# Gerado aqui porque os caminhos sao do Debian. libdir leva o triplet ja
+	# resolvido porque o pkg-config nao expande DEB_HOST_MULTIARCH. Nao ha -lm,
+	# -lpthread nem -ldl: G5 mediu NEEDED = libc.so.6 e nada mais, e o nm do
+	# .so nao tem nenhuma referencia indefinida a resolver dessas bibliotecas.
+	install -d debian/tmp/$(PKGCONFDIR)
+	printf '%s\n' \
+	  'prefix=/usr' \
+	  'exec_prefix=$${prefix}' \
+	  'libdir=$${prefix}/lib/$(MULTIARCH)' \
+	  'includedir=$${prefix}/include/tiffanydb' \
+	  '' \
+	  'Name: tiffanydb' \
+	  'Description: Tiffany DB - motor SQL embebido (biblioteca C)' \
+	  'Version: $(REALVER)' \
+	  'Libs: -L$${libdir} -ltiffanydb' \
+	  'Cflags: -I$${includedir}' \
+	  > debian/tmp/$(PKGCONFDIR)/tiffanydb.pc
+
+	# --- H10 - documentacao -------------------------------------------------
+	# LICENSE e NOTICE vao para o -dev: sao o que se consulta ao integrar.
+	install -d debian/tmp/$(DOCDEV)
+	install -m 0644 LICENSE debian/tmp/$(DOCDEV)/LICENSE
+	install -m 0644 NOTICE debian/tmp/$(DOCDEV)/NOTICE
+	install -m 0644 debian/README debian/tmp/$(DOCDEV)/README
+
+	# --- o ficheiro de copyright, em ambos os pacotes ----------------------
+	# A Policy 12.4 pede /usr/share/doc/<pacote>/copyright, e o lintian classifica
+	# a falta como ERRO (tag no-copyright-file). A sequencia do dh aqui nao corre
+	# dh_installdocs, por isso e instalado a mao. Vai SEM compressao, porque a
+	# Policy pede que o copyright nao seja comprimido, e separado por pacote para
+	# que nenhum dependa do outro.
+	for P in $(PKG_LIB_RT) $(PKG_LIB_DV); do \
+	  install -d debian/tmp/usr/share/doc/$$P; \
+	  install -m 0644 debian/copyright debian/tmp/usr/share/doc/$$P/copyright; \
+	done
+
+# ---------------------------------------------------------------------------
+# H4/H5 - dependencia ELF pelo mecanismo certo do Debian.
+#
+# dh_makeshlibs le os simbolos exportados da biblioteca e escreve o ficheiro
+# shlibs; o dh_gencontrol transforma-o em shlibs:Depends. E o que faz o runtime
+# depender de libc6 SOZINHO, sem ninguem escrever libc6 a mao: se um dia o
+# produto precisar de mais, isto acompanha sem ninguem se lembrar.
+#
+# Ele NAO cria symlinks, por isso os dois symlinks sao criados em install, nome a
+# nome. E precisa que a biblioteca esteja em debian/tmp, que o dh_install ja
+# esvaziou porque corre ANTES na sequencia do dh. Repor, em vez de depender da
+# ordem, e o que torna isto correcto sem depender de detalhes da sequencia.
+# ---------------------------------------------------------------------------
+override_dh_makeshlibs:
+	install -d debian/tmp/$(LIBDIR)
+	install -m 0644 $(B)/$(LIBFILE) debian/tmp/$(LIBDIR)/$(LIBFILE)
+	dh_makeshlibs -V $(SONAME) -X $(PKG_LIB_DV)
+
+override_dh_installdocs:
+override_dh_installman:
+
+.PHONY: override_dh_auto_build override_dh_auto_test override_dh_auto_clean

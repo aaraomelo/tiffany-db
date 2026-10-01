@@ -1,0 +1,118 @@
+libtiffanydb - como usar esta biblioteca
+========================================
+
+Tiffany DB e um motor SQL embebido escrito em C. O produto e uma biblioteca, nao
+um programa: nao ha comando a instalar e nao ha servico a configurar.
+
+
+O que o pacote instala
+-----------------------
+
+libtiffanydb1      o objecto partilhado (libtiffanydb.so.1) e nada mais
+libtiffanydb-dev   os dois cabecalhos publicos, a biblioteca estatica, o
+                   symlink de link e o ficheiro pkg-config
+
+O consumidor dinamico precisa so de libtiffanydb1. Quem compila precisa de
+libtiffanydb-dev, que depende de libtiffanydb1.
+
+
+Compilar contra a biblioteca
+----------------------------
+
+    cc prog.c $(pkg-config --cflags --libs tiffanydb) -o prog
+
+Os cabecalcos publicos estao em /usr/include/tiffanydb e o pkg-config sabe
+disso. Sao dois e so dois:
+
+    sql_api.h      o motor SQL
+    pgwire_api.h   o transporte PostgreSQL
+
+Os cabecalhos internos do produto nao sao instalados. Quem precisar de um
+deles esta a usar o interior da maquina, que nao tem contrato de estabilidade.
+
+
+A superficie exportada
+----------------------
+
+O objecto exporta exactamente 39 simbolos, e os dois cabecalhos publicos
+declaram exactamente esses 39 - nem mais, nem menos. Sao eles:
+
+    35 funcoes e objectos sql_*
+     4 funcoes pgwire_*
+
+Nao ha outros. Nao ha main, nem _init, nem _fini.
+
+
+Ordem de uso
+------------
+
+A base abre-se e fecha-se pela propria biblioteca:
+
+    #include <tiffanydb/sql_api.h>
+
+    int  r = sql_abrir("minha_base");   /* 1 = sucesso */
+    if (r != 1) { /* a base nao abriu */ }
+    ...
+    sql_fechar();
+
+Antes de servir uma ligacao do protocolo PostgreSQL, a base tem de estar
+aberta: pgwire_serve_conn e transporte puro e nao abre base nenhuma.
+
+
+Tres factos que a documentacao da API nao diz
+--------------------------------------------
+
+1. Memoria. O objecto reserva cerca de 3 MiB de .bss (medido no .deb: 3091416
+   bytes). O ficheiro em disco e pequeno, mas qualquer processo que carregue a
+   biblioteca cresce cerca de 3 MiB em memoria residente, tenha ou nao base
+   aberta.
+
+2. Portas. pgwire_listen(0, &got) NAO pede uma porta efemera. O zero pede a
+   porta 5432. Em qualquer maquina que ja tenha um PostgreSQL a escutar, isso
+   e uma colisao. Passe sempre a porta explicitamente.
+
+3. Onde a base fica. sql_abrir("minha_base") resolve os caminhos em relacao ao
+   DIRECTORIO DE TRABALHO do processo, nao a `/usr` nem a `/var`. Medido: depois
+   de um CREATE e dois INSERT, aparecem no directorio de trabalho
+
+       minha_base.mem        (~19 MiB, um por base)
+       minha_base__t.mem     (~19 MiB, um por tabela criada)
+       minha_base.prog       (o programa compilado da ultima varredura)
+       minha_base.undo       (a pilha de desfazer)
+       dados/sql_pool.bin    (o pool de relacoes, relativo ao mesmo sitio)
+       dados/sql_rel.bin
+
+   Estes ficheiros NAO pertencem a este pacote e nunca pertencerao: sao dados de
+   quem chama, e nenhum `dpkg -r` os toca porque nunca os instalou. Quem quiser
+   backup faz backup do directorio de trabalho.
+
+4. Dependencias. O objecto precisa so da libc, e isso mede-se:
+   `ldd` mostra apenas libc, e o `nm` das referencias indefinidas nao tem nada
+   de -lm, -lpthread nem -ldl.
+
+   Isto NAO significa que o codigo nunca invoque outro programa. O produto tem
+   uma ponte para bash, node e powershell, e essa ponte ESTA dentro deste
+   objecto: o `nm` mostra `popen`, `pclose` e `_exit` por resolver. E ela
+   alcancavel pela API publica, ao contrario do que se supunha:
+
+       sql_executa("BASH MOVE ...")        chega a cmd_bash
+       sql_executa("NODE MOVE ...")        chega a cmd_node
+       sql_executa("POWERSHELL MOVE ...")  chega a cmd_powershell
+
+   As tres formas acima foram medidas: a API reconhece a palavra, e recusa a
+   forma errada com "BASH: use MOVE" e com rc = 0.
+
+   Para SQL normal -- CREATE, INSERT, SELECT, UPDATE, contagens -- nada disto e
+   chamado. Medido num contentor Ubuntu 24.04 SEM node e SEM powershell
+   instalados: a base abre, cria, insere e devolve linhas na mesma. Por isso este
+   pacote NAO declara dependencia de node, bash ou powershell: sao capacidades
+   opcionais, e quem as quiser traz o interpretador que precisar.
+
+
+Licenca
+-------
+
+Este pacote nao e software livre. A licenca do produto e a
+Tiffany-License-2026-08 e esta em /usr/share/doc/libtiffanydb-dev/LICENSE,
+com o NOTICE ao lado. A redistribuicao deste pacote exige acordo escrito
+separado; ver o ficheiro copyright.

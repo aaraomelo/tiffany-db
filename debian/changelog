@@ -1,0 +1,14 @@
+libtiffanydb (1.0.0-1) unstable; urgency=low
+
+  * First Debian/Ubuntu packaging of the Tiffany DB shared library.
+  * Two binary packages: libtiffanydb1 (runtime) and libtiffanydb-dev
+    (headers, static library, pkg-config). Both are Multi-Arch: same.
+  * SONAME is libtiffanydb.so.1. Packaging did not bump the ABI and did not
+    change the product version: 1.0.0 is the product, -1 is the Debian
+    revision.
+  * No tiffany-db package: the command line frontend does not exist yet and
+    this packaging does not invent one.
+  * Packaged from the committed sources only. The product sources are not
+    modified by this package.
+
+ -- Tiffany DB Maintainers <tiffanydb@example.invalid>  Wed, 30 Sep 2026 00:00:00 +0000

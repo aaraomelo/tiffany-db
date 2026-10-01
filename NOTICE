@@ -1,0 +1,59 @@
+═══════════════════════════════════════════════════════════════════════════════
+  NOTICE — OBRAS DE TERCEIROS INCORPORADAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Repositório:  https://github.com/aaraomelo/tiffany
+Licença:      LICENSE (Tiffany-License-2026-08)
+
+Este arquivo é a lista referida na seção "OBRAS DE TERCEIROS" da LICENSE. É
+aqui que a lista vive: material de terceiros incorporado ao repositório deve
+constar abaixo, com a sua origem e a sua licença.
+
+
+ESTADO ATUAL
+────────────────────────────────────────────────────────────────────────────────
+
+Nenhum material de terceiros está incorporado ao conteúdo versionado deste
+repositório.
+
+Todo o conteúdo versionado é original do titular, salvo indicação em contrário
+no próprio arquivo.
+
+
+MATERIAIS DE REFERÊNCIA NÃO INCORPORADOS
+────────────────────────────────────────────────────────────────────────────────
+
+PDFs e demais materiais de terceiros usados como referência de leitura são
+excluídos do controle de versão pelo .gitignore. Não fazem parte do conteúdo
+proprietário e permanecem sujeitos às respectivas licenças.
+
+As fontes públicas usadas como referência são citadas nos documentos
+correspondentes e mantêm as suas próprias licenças e condições de uso.
+
+
+FERRAMENTAS
+────────────────────────────────────────────────────────────────────────────────
+
+O repositório é compilado e executado com ferramentas de terceiros — entre
+elas TeX Live, compiladores C e utilitários de sistema — que NÃO são
+redistribuídas aqui. Cada uma permanece sob a sua própria licença, obtida
+pelo usuário de forma independente.
+
+
+COMO MANTER ESTE ARQUIVO
+────────────────────────────────────────────────────────────────────────────────
+
+Ao incorporar material de terceiros ao repositório, acrescente uma entrada
+com:
+
+  1. o caminho no repositório;
+  2. a obra e o seu autor ou mantenedor;
+  3. a origem (URL ou referência);
+  4. a licença aplicável, pelo identificador SPDX quando houver;
+  5. a data da incorporação.
+
+Um arquivo de terceiros deve carregar, no seu próprio cabeçalho, o aviso de
+licença correspondente. A entrada aqui não substitui esse aviso: repete-o num
+sítio onde se possa ver a lista inteira de uma vez.
+
+═══════════════════════════════════════════════════════════════════════════════

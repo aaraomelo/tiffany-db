@@ -1,0 +1,379 @@
+═══════════════════════════════════════════════════════════════════════════════
+  LICENÇA PROPRIETÁRIA — VERIFICAÇÃO LIVRE, USO MEDIANTE ACORDO
+═══════════════════════════════════════════════════════════════════════════════
+
+Copyright © 2026 Aarão Melo Lopes. Todos os direitos reservados, salvo os
+expressamente concedidos neste documento.
+
+  Repositório:   https://github.com/aaraomelo/tiffany
+  Licença:       https://github.com/aaraomelo/tiffany/blob/master/LICENSE
+  Contrato:      https://github.com/aaraomelo/tiffany/blob/master/CONTRATO-TIPO.md
+  Titular:       Aarão Melo Lopes
+  Contato:       aarao.melo.lopes@gmail.com
+  Identificador: Tiffany-License-2026-08
+
+Este é o endereço canônico da obra. Cópias, espelhos e derivações que venham a
+existir em outros endereços não substituem este, e a versão desta licença que
+rege o repositório público é a publicada no endereço acima.
+
+Usos já autorizados por acordo escrito vigente não são restringidos por versão
+posterior desta licença.
+
+
+1. OBJETO E ABRANGÊNCIA
+
+Esta licença aplica-se a todo o conteúdo original deste repositório pertencente
+ao titular dos direitos — código, textos, arquivos-fonte, arquivos .tex, PDFs
+gerados, figuras e demais materiais —, salvo quando um arquivo específico
+indicar expressamente licença ou condição diferente, por identificador SPDX ou
+aviso próprio.
+
+A abrangência é definida pela titularidade e pela originalidade do conteúdo, e
+não por uma lista de diretórios: renomear, mover ou reorganizar diretórios não
+altera o que aqui está abrangido.
+
+Materiais de terceiros permanecem sujeitos às respectivas licenças e não são
+abrangidos por esta licença, conforme a seção "OBRAS DE TERCEIROS".
+
+
+2. REPOSITÓRIO PÚBLICO, E O QUE A PUBLICAÇÃO CONCEDE
+
+Este repositório é publicado em acesso aberto no endereço indicado no
+cabeçalho. A publicação é deliberada e tem finalidade declarada: permitir que
+os medidores em tests/ sejam executados contra as afirmações dos textos.
+
+Publicar não é licenciar. Tornar o repositório visível não concede, por si, as
+autorizações vedadas na seção 4, e a leitura do conteúdo não constitui acordo
+escrito nem autorização de uso.
+
+Reconhece-se o alcance próprio da plataforma de hospedagem: ao publicar o
+repositório em acesso aberto, os termos de serviço dessa plataforma concedem
+aos seus usuários a faculdade de visualizar o repositório e de criar cópias
+derivadas dentro da própria plataforma (fork). Essa faculdade decorre do ato de
+publicar e não é revogada por esta licença. O seu alcance é o que a plataforma
+define, e não mais.
+
+Para efeitos desta licença, entende-se por SAIR DA PLATAFORMA qualquer obtenção
+do conteúdo fora do ambiente da plataforma de hospedagem, incluindo clone
+local, download de arquivo compactado, espelhamento em outro serviço de
+versionamento, cópia para armazenamento próprio ou envio por qualquer meio.
+
+Sair da plataforma não é, em si, uso não autorizado: é o que a seção 3 concede
+para verificação. O que a seção 3 não concede permanece sujeito à seção 4.
+
+
+3. CONCESSÃO GRATUITA PARA VERIFICAÇÃO
+
+Enquanto este repositório permanecer público, o titular concede a qualquer
+pessoa, de forma gratuita, automática e sem necessidade de acordo prévio,
+autorização para:
+
+  1. obter cópia do repositório, por clone, download ou fork, inclusive fora
+     da plataforma de hospedagem;
+  2. ler, examinar e estudar os textos e o código;
+  3. compilar e executar os medidores contidos em tests/, bem como as partes
+     do restante do repositório de que esses medidores dependam para compilar
+     e executar;
+  4. produzir, reter e divulgar os resultados dessa execução, inclusive quando
+     contrariem as afirmações dos textos;
+  5. citar trechos dos textos e do código na medida permitida pela legislação
+     aplicável, com indicação de autoria e origem;
+  6. discutir, resenhar, criticar e comentar publicamente a obra e os
+     resultados obtidos.
+
+Esta concessão existe porque a obra se propõe a ser verificada, e uma obra que
+proibisse a sua própria verificação estaria a afirmar sem se expor. É condição
+da concessão a preservação dos avisos de autoria, nos termos da seção 10.
+
+A concessão é irrevogável quanto às cópias legitimamente obtidas enquanto o
+repositório era público, e não se estende a nenhum uso descrito na seção 4.
+
+
+4. RESERVA GERAL
+
+Fora do concedido nas seções 2 e 3, e salvo autorização obtida por uma das
+duas vias da seção 5, NÃO é concedida licença gratuita para uso, modificação,
+adaptação, redistribuição, publicação, incorporação em outra obra,
+sublicenciamento ou exploração comercial do conteúdo proprietário deste
+repositório.
+
+Reserva-se igualmente, na extensão permitida pela legislação aplicável, o uso
+do conteúdo deste repositório para treinamento, ajuste ou avaliação de modelos
+de aprendizado de máquina, e a sua coleta automatizada para esse fim, quando
+tal uso não estiver já autorizado pelos termos da plataforma de hospedagem.
+
+Esta é uma licença de direito autoral. Não concede, expressa ou tacitamente,
+qualquer licença de patente sobre métodos ou processos eventualmente descritos
+na obra, os quais permanecem reservados ao titular.
+
+
+5. AUTORIZAÇÃO DE USO: AS DUAS VIAS
+
+Além do concedido na seção 3, o uso do conteúdo proprietário autoriza-se por
+uma de duas vias, e apenas por elas.
+
+VIA A — ADESÃO AO CONTRATO-TIPO, POR PIX COM LEGENDA
+
+Para uso próprio — usar, copiar, modificar, compilar e integrar o conteúdo nos
+sistemas de quem adere, incluindo uso interno de uma empresa — a autorização
+obtém-se por ADESÃO ao CONTRATO-TIPO TIFFANY, publicado no arquivo
+CONTRATO-TIPO.md, no endereço indicado no cabeçalho.
+
+O contrato-tipo é de adesão: o seu texto não se negocia. A adesão faz-se por
+uma única transferência PIX com a legenda estruturada que a seção 6 fixa, e
+produz efeito no dia do crédito, sem qualquer procedimento adicional, sem
+resposta do titular e sem confirmação a emitir.
+
+O alcance dessa autorização, o seu início e o seu fim são os do contrato-tipo,
+e nada além. Em especial, ela NÃO concede redistribuir, sublicenciar,
+republicar, vender o conteúdo como produto autônomo, nem remover avisos de
+autoria.
+
+VIA B — ACORDO ESCRITO BILATERAL
+
+Para o que a Via A não concede — redistribuição, sublicenciamento,
+republicação, exploração do conteúdo como produto autônomo, ou qualquer
+condição diferente das do contrato-tipo — é necessário acordo escrito
+celebrado com o titular, cujo contato consta do cabeçalho.
+
+Nesse acordo, ele é a única fonte da autorização, e define alcance, prazo,
+território, modalidades de uso, número de usuários, distribuição,
+sublicenciamento e demais condições.
+
+REGRA COMUM ÀS DUAS VIAS
+
+A autorização é sustentada por contribuição destinada à manutenção,
+continuidade e desenvolvimento do projeto. A contribuição é obrigação
+decorrente da via aplicável, e não a sua causa: pagar fora de uma das duas
+vias não autoriza coisa alguma.
+
+
+6. FORMA DE CONTRIBUIÇÃO, LEGENDA E LIQUIDAÇÃO
+
+As contribuições são realizadas mediante transferência PIX para:
+
+  Titular:
+    Aarão Melo Lopes
+
+  Chave PIX:
+    aarao.melo.lopes@gmail.com
+
+A LEGENDA. Para aderir pela Via A, a transferência deve levar legenda
+exatamente neste formato, com os quatro campos separados por barra vertical:
+
+  TIFFANY | <identidade> | <email> | <periodo>
+
+  <identidade>  nome da pessoa ou razão social autorizada
+  <email>       contato dessa pessoa ou entidade
+  <periodo>     YYYY-MM (mês), YYYY (ano civil), ou YYYY-MM..YYYY-MM
+
+Exemplos:
+
+  TIFFANY | Ana Silva | ana@mail.com | 2026-09
+  TIFFANY | Acme Ltda | juridico@acme.com | 2026
+  TIFFANY | Ana Silva | ana@mail.com | 2026-09..2027-08
+
+O EFEITO. A transferência efetivamente recebida na chave acima, com legenda
+completa e bem formada, liquida a contribuição do período indicado e constitui
+adesão ao contrato-tipo na versão publicada no endereço canônico no dia do
+crédito. Não há segundo passo, e a ausência de resposta do titular não afeta a
+adesão.
+
+O VALOR. O valor é livremente escolhido por quem adere. Esta licença não
+estabelece tabela de preços, valor mínimo, periodicidade mínima ou limite
+máximo, e a ausência dessas cláusulas não pode ser invocada para presumir
+autorização mais ampla do que a do contrato-tipo.
+
+SEM LEGENDA, É DOAÇÃO. TRANSFERÊNCIA SEM O PREFIXO "TIFFANY |", OU COM LEGENDA
+INCOMPLETA OU MAL FORMADA, NÃO CONSTITUI ADESÃO, NÃO CONCEDE LICENÇA E NÃO
+QUITA DIREITO ALGUM: É TRATADA COMO DOAÇÃO AO PROJETO, SEM CONTRAPARTIDA DE
+LICENCIAMENTO. Legendas livres — "apoio", "obrigado", "mensal" — não produzem
+adesão.
+
+Se o aplicativo de pagamento truncar ou remover a legenda, quem paga deve
+enviar o comprovante e os quatro campos para o contato do cabeçalho; vale a
+data do crédito.
+
+PESSOA JURÍDICA. A adesão é válida com a razão social na legenda. Quando for
+necessário documento fiscal, o pedido faz-se pelo contato do cabeçalho, e a
+sua emissão não é condição da adesão nem a suspende.
+
+O QUE O PAGAMENTO NÃO É. A contribuição não constitui compra da obra nem
+transferência de propriedade intelectual. Nenhuma transferência de direitos
+além da expressamente estabelecida no contrato-tipo ou no acordo escrito
+poderá ser presumida em razão do pagamento.
+
+
+7. USOS NÃO AUTORIZADOS
+
+Na ausência de autorização válida — seja a concessão da seção 3, seja adesão
+ao contrato-tipo, seja acordo escrito, seja outra autorização legal aplicável —
+é vedado, na extensão permitida pela legislação aplicável, usar, copiar,
+modificar, adaptar, incorporar, fundir, publicar, distribuir, sublicenciar,
+vender ou explorar o conteúdo proprietário, no todo ou em parte.
+
+
+8. O QUE ESTA LICENÇA NÃO RESTRINGE
+
+Esta licença recai sobre a EXPRESSÃO fixada neste repositório: o texto, o
+código, as figuras.
+
+Não restringe, e não pretende restringir:
+
+  1. o uso de ideias, métodos, fatos, descobertas e resultados matemáticos, na
+     medida em que a legislação aplicável os deixe livres;
+  2. a produção independente de outras demonstrações, implementações ou
+     formulações dos mesmos resultados;
+  3. a citação, a cópia privada e as demais utilizações livres previstas na
+     legislação de direitos autorais aplicável.
+
+Quem reler um teorema desta obra e escrever a sua própria prova escreveu obra
+sua, e esta licença não a alcança.
+
+
+9. CONTRIBUIÇÕES RECEBIDAS
+
+Contribuições de terceiros ao repositório — correções, medidores, código,
+texto — somente serão incorporadas se o contribuinte licenciar ao titular, de
+forma não exclusiva, irrevogável e isenta de royalties, o direito de usar,
+modificar, publicar, relicenciar e distribuir a contribuição sob os termos
+desta licença e de versões futuras dela.
+
+O envio de contribuição para incorporação constitui manifestação dessa licença.
+Contribuições sujeitas a condições incompatíveis não serão incorporadas.
+
+A autoria da contribuição é do contribuinte e será indicada, nos termos da
+seção 10.
+
+
+10. ATRIBUIÇÃO E INTEGRIDADE DA AUTORIA
+
+Nenhuma autorização concedida por este documento — inclusive a concessão
+gratuita da seção 3 — permite remover ou obscurecer, de forma intencional,
+avisos de copyright, autoria ou origem presentes nos arquivos.
+
+A exigência de preservação da autoria integra o regime de uso da obra. As
+condições específicas para identificação do autor em materiais derivados,
+redistribuições ou publicações poderão ser estabelecidas no acordo de
+licenciamento.
+
+
+11. ISENÇÃO DE GARANTIAS E LIMITAÇÃO DE RESPONSABILIDADE
+
+NA MÁXIMA EXTENSÃO PERMITIDA PELA LEGISLAÇÃO APLICÁVEL, O SOFTWARE E OS TEXTOS
+SÃO FORNECIDOS "TAL COMO ESTÃO", SEM GARANTIAS DE QUALQUER TIPO, EXPRESSAS OU
+IMPLÍCITAS.
+
+NA MÁXIMA EXTENSÃO PERMITIDA PELA LEGISLAÇÃO APLICÁVEL, O TITULAR DOS DIREITOS
+NÃO SERÁ RESPONSÁVEL POR DANOS, PERDAS, RECLAMAÇÕES OU OUTRAS
+RESPONSABILIDADES DECORRENTES DO USO, DA IMPOSSIBILIDADE DE USO OU DA
+DISTRIBUIÇÃO DO SOFTWARE OU DOS TEXTOS.
+
+
+12. LEGISLAÇÃO APLICÁVEL
+
+Esta licença rege-se pela legislação brasileira, em especial pela Lei nº
+9.610/98 e pela Lei nº 9.609/98.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  OBRAS DE TERCEIROS
+═══════════════════════════════════════════════════════════════════════════════
+
+Materiais de terceiros utilizados como referência de leitura NÃO fazem parte do
+conteúdo proprietário deste repositório e permanecem sujeitos às respectivas
+licenças.
+
+Quando aplicável, esses materiais são excluídos do controle de versão por
+.gitignore. Quando incorporados ao repositório, são identificados no arquivo
+NOTICE, que é onde a lista vive e se mantém.
+
+As fontes públicas utilizadas como referência são citadas nos documentos
+correspondentes e mantêm as suas próprias licenças e condições de uso.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  ATRIBUIÇÃO: O APAGAMENTO É ZERO
+═══════════════════════════════════════════════════════════════════════════════
+
+  Este bloco e os dois seguintes exprimem a intenção do autor. O que produz
+  efeitos jurídicos são as cláusulas 1 a 12.
+
+A obra é construída sobre a exigência metodológica de que nada se perca sem que
+a perda seja identificada e medida.
+
+No plano da autoria, isso significa que nenhuma licença concedida por este
+documento autoriza a remoção ou o obscurecimento deliberado da indicação de
+autoria e origem presente na obra.
+
+A autoria não é exceção ao princípio de conservação que orienta o trabalho.
+
+═══════════════════════════════════════════════════════════════════════════════
+  DESTINAÇÃO DOS RECURSOS — SEM ACUMULAÇÃO DE RIQUEZA
+═══════════════════════════════════════════════════════════════════════════════
+
+  Bloco de intenção, como o anterior. O que produz efeitos jurídicos são as
+  cláusulas 1 a 12; o que se declara aqui é para que servem os recursos, e
+  serve para ser cobrado ao autor, não a quem adere.
+
+Os valores recebidos em razão das autorizações concedidas por esta licença são
+destinados à manutenção, conservação, infraestrutura, continuidade e
+desenvolvimento do projeto.
+
+A destinação observa a seguinte ordem:
+
+  contribuição → projeto → custos necessários → continuidade → comunidade.
+
+Os valores necessários à manutenção e continuidade poderão ser utilizados para
+cobrir os custos operacionais, técnicos, documentais, computacionais,
+administrativos e demais custos diretamente relacionados à existência e ao
+desenvolvimento do projeto.
+
+Não constitui finalidade desta licença a acumulação de riqueza pessoal a partir
+das contribuições recebidas.
+
+Depois de satisfeitos os custos necessários à manutenção e continuidade,
+eventual excedente será revertido à comunidade, direta ou indiretamente, por
+meio de infraestrutura, desenvolvimento, documentação, pesquisa, ferramentas,
+serviços, disponibilização de recursos ou outras iniciativas relacionadas ao
+projeto e à comunidade que dele participa.
+
+A reversão poderá ocorrer de forma material, técnica, financeira ou pela
+própria disponibilização de recursos e infraestrutura, conforme as necessidades
+e possibilidades do projeto.
+
+O princípio econômico desta licença é, portanto, de SUSTENTAÇÃO E CIRCULAÇÃO, e
+não de acumulação.
+
+O projeto recebe os recursos de que necessita para continuar existindo; aquilo
+que exceder essa necessidade retorna ao circuito da comunidade.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  NOTA DO AUTOR
+═══════════════════════════════════════════════════════════════════════════════
+
+Este trabalho é meu e, dentro dos direitos que a lei me confere, disponho dele
+nas condições estabelecidas nesta licença.
+
+Os medidores em tests/ existem para permitir a verificação das afirmações dos
+papers, e é para isso que o repositório é público. Clonar, compilar e correr
+esses medidores é livre, e a seção 3 concede-o por escrito — não por
+tolerância, e não por promessa que só valha nesta nota.
+
+Quem verificar, verifica tudo: os medidores estão aqui para serem corridos
+contra as afirmações dos papers, e é assim que este trabalho procura
+defender-se — pela medida, não pela palavra. Se um medidor contrariar um
+teorema, o resultado é seu para publicar, e a obra é que tem de responder.
+
+Para usar isto no seu trabalho, não é preciso falar comigo: o contrato está
+escrito em CONTRATO-TIPO.md, não se negocia, e adere-se com um PIX que leve a
+legenda. O valor é o que quiser. Não respondo a confirmar, porque não há nada
+a confirmar — ou a legenda está lá e o período cobre, ou não está.
+
+Só há um caso que ainda fala comigo: redistribuir, sublicenciar ou republicar.
+Esse é acordo escrito, e o contato está no cabeçalho.
+
+  — Aarão Melo Lopes, agosto de 2026
+
+═══════════════════════════════════════════════════════════════════════════════

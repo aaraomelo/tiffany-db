@@ -1,0 +1,92 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: libtiffanydb
+Source: https://github.com/aaraomelo/tiffany
+Disclaimer: This package is redistributable only under the separate written
+ agreement described below. See the "Redistribution" paragraph.
+
+Files: *
+Copyright: 2026 Aarão Melo Lopes
+License: LicenseRef-Tiffany-License-2026-08
+
+Files: debian/*
+Copyright: 2026 Aarão Melo Lopes
+License: LicenseRef-Tiffany-License-2026-08
+
+License: LicenseRef-Tiffany-License-2026-08
+ This is not a free software licence and this is not a free software package.
+ .
+ The upstream project names its own licence "Tiffany-License-2026-08" in the
+ header of the LICENSE file at the root of the source tree. No SPDX identifier
+ is declared by the project, so this file uses the LicenseRef form rather than
+ inventing one. The authoritative text is the LICENSE file, which is shipped
+ verbatim in /usr/share/doc/libtiffanydb-dev/LICENSE; the NOTICE file is
+ shipped alongside it.
+ .
+ Free verification grant. While the repository remains public, the licensor
+ grants to any person, free of charge and without prior agreement, permission
+ to obtain a copy of the repository by clone, download or fork, including
+ outside the hosting platform; to read, examine and study the texts and the
+ code; to compile and execute the measurement programs contained in tests/, and
+ those parts of the rest of the repository on which those programs depend in
+ order to compile and execute; to produce, retain and publish the results of
+ that execution, including where the results contradict the claims of the
+ texts; to quote extracts of the texts and the code to the extent permitted by
+ applicable law, with attribution; and to discuss, redraw, criticise and comment
+ publicly on the work and on the results obtained. This grant is irrevocable with
+ respect to copies lawfully obtained while the repository was public.
+ .
+ No free licence. Outside what is granted above, and except for an authorisation
+ obtained by one of the two routes below, NO free licence is granted to use,
+ modify, adapt, redistribute, publish, incorporate into another work,
+ sublicense or commercially exploit the proprietary content of this repository.
+ The licence is a copyright licence and grants no patent licence. Redefining,
+ moving or reorganising directories does not change its scope. The licence
+ reserves, to the extent permitted by applicable law, the use of the
+ repository content for training, tuning or evaluating machine learning models,
+ and its automated collection for that purpose, unless already authorised by
+ the hosting platform's terms of service.
+ .
+ Use authorisation, first route: personal use. For one's own use -- using,
+ copying, modifying, compiling and integrating the content into the systems of
+ the party who adheres -- authorisation is obtained by adhesion to the
+ upstream CONTRATO-TIPO, published as CONTRATO-TIPO.md in the repository.
+ The contract is an adhesion contract whose text is not negotiable. Adhesion is
+ effected by a single PIX transfer bearing the structured legend fixed in
+ section 6 of the LICENSE file, and takes effect on the day the credit lands,
+ with no further step, no reply from the licensor and no confirmation to be
+ issued. The amount is freely chosen. A transfer without the "TIFFANY |"
+ prefix, or with an incomplete or malformed legend, does NOT constitute
+ adhesion, grants no licence and waives no right: it is treated as a donation.
+ The scope of this authorisation is exactly the scope of the contract, and
+ nothing beyond it; in particular it does NOT grant redistribution,
+ sublicensing, republication or sale of the content as a standalone product,
+ nor removal of authorship notices.
+ .
+ Use authorisation, second route: redistribution. For what the first route does
+ not grant -- redistribution, sublicensing, republication, exploitation of the
+ content as a standalone product, or any condition different from those of the
+ contract -- a written agreement concluded with the licensor is required. That
+ agreement is the only source of such authorisation, and it defines scope,
+ term, territory, modes of use, number of users, distribution, sublicensing and
+ the remaining conditions.
+ .
+ Packaging. This Debian packaging adds no licence grant. The debian/ directory,
+ its packaging metadata and the build scripts are part of the licensed work and
+ carry the same terms. Building, installing and verifying this package on the
+ machine that holds the licence falls under the free verification grant above;
+ publishing the resulting binary packages to third parties falls under the
+ redistribution paragraph above and therefore requires a written agreement
+ that does not yet exist.
+ .
+ Attribution. No authorisation granted by the licence, including the free
+ verification grant, permits the intentional removal or obscuring of the
+ copyright, authorship or origin notices present in the files.
+ .
+ Disclaimer of warranty. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE
+ SOFTWARE AND THE TEXTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, AND THE RIGHTS HOLDER SHALL NOT BE LIABLE FOR ANY DAMAGES,
+ LOSSES, CLAIMS OR OTHER LIABILITIES ARISING FROM THE USE OR INABILITY TO USE
+ OR DISTRIBUTION OF THE SOFTWARE OR THE TEXTS.
+ .
+ Applicable law. Brazilian law, in particular Law No. 9.610/98 and Law No.
+ 9.609/98.

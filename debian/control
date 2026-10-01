@@ -1,0 +1,43 @@
+Source: libtiffanydb
+Section: libs
+Priority: optional
+Standards-Version: 4.7.0
+Maintainer: Tiffany DB Maintainers <tiffanydb@example.invalid>
+Build-Depends: debhelper-compat (= 13),
+               libc6-dev
+Rules-Requires-Root: no
+
+Package: libtiffanydb1
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tiffany DB runtime library (shared object, ABI 1)
+ Tiffany DB is an embedded SQL engine written in C. This package ships the
+ shared object that consumers link against at run time: it opens a database,
+ executes SQL and returns rows.
+ .
+ This is the run-time half. It contains only the shared object and the SONAME
+ symlink. Headers, the static library and the pkg-config metadata are in
+ libtiffanydb-dev.
+ .
+ The object pins roughly 3 MiB of .bss, so a process that loads it grows by
+ about that much in resident memory regardless of how small the file is.
+
+Package: libtiffanydb-dev
+Architecture: any
+Multi-Arch: same
+# Sem ${shlibs:Depends}: este pacote nao contem nenhuma biblioteca partilhada
+# real, so o arquivo estatico e o symlink de link. Quem liga contra a .a
+# resolve os simbolos com o seu proprio linker, e a dependencia de execucao e
+# da libtiffanydb1, declarada logo a seguir.
+Depends: libtiffanydb1 (= ${binary:Version}),
+         ${misc:Depends}
+Description: Tiffany DB development files (headers, static library, pkg-config)
+ Headers, the static library, the linker symlink and the pkg-config file
+ needed to build programs against Tiffany DB.
+ .
+ The installed public headers are sql_api.h and pgwire_api.h. They declare
+ exactly the 39 symbols the shared object exports, and no others. Internal
+ headers are not installed.
+ .
+ pkg-config reports version 1.0.0.
