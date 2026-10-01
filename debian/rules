@@ -91,7 +91,7 @@ override LDFLAGS  := $(_BL) -Wl,-soname,$(SONAME) -Wl,--build-id=none
 B := debian/build
 
 # As DUAS unidades de traducao do produto. Mais nada e compilado.
-CORE_SRC := banco/sql.c
+CORE_SRC := banco/sql.c banco/jev.c
 WIRE_SRC := banco/pgwire.c
 
 %:
@@ -171,6 +171,7 @@ override_dh_auto_install:
 	install -d debian/tmp/$(INCDIR)
 	install -m 0644 banco/sql_api.h    debian/tmp/$(INCDIR)/sql_api.h
 	install -m 0644 banco/pgwire_api.h debian/tmp/$(INCDIR)/pgwire_api.h
+	install -m 0644 banco/jev_api.h debian/tmp/$(INCDIR)/jev_api.h
 
 	# --- pkg-config --------------------------------------------------------
 	# Gerado aqui porque os caminhos sao do Debian. libdir leva o triplet ja

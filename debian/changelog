@@ -1,6 +1,11 @@
-libtiffanydb (1.0.0-1) unstable; urgency=low
+libtiffanydb (1.1.0-1) unstable; urgency=low
 
   * First Debian/Ubuntu packaging of the Tiffany DB shared library.
+  * JEV integration: banco/jev.c, banco/jev_api.h, banco/jev_core.h,
+    tests/jev_casos.c, tests/jev_casos.h, tests/test_jev_api.c,
+    tests/test_jev_oraculo.c, JEV.md. 6 new public symbols:
+    jev_arena, jev_marginal, jev_escore, jev_duas, jev_marginal_d, jev_proj.
+    SONAME libtiffanydb.so.1 preserved. ABI: 39 + 6 = 45.
   * Two binary packages: libtiffanydb1 (runtime) and libtiffanydb-dev
     (headers, static library, pkg-config). Both are Multi-Arch: same.
   * SONAME is libtiffanydb.so.1. Packaging did not bump the ABI and did not

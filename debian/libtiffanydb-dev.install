@@ -7,3 +7,4 @@ usr/share/doc/libtiffanydb-dev/copyright
 usr/share/doc/libtiffanydb-dev/LICENSE
 usr/share/doc/libtiffanydb-dev/NOTICE
 usr/share/doc/libtiffanydb-dev/README
+usr/include/tiffanydb/jev_api.h
