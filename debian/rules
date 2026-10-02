@@ -142,9 +142,9 @@ override_dh_auto_install:
 	# ar em modo determinista (predefinido no binutils actual): a segunda
 	# razao da reprodutibilidade de G11, a par de -g0.
 	rm -f $(B)/libtiffanydb.a
-	ar rcsD $(B)/libtiffanydb.a $(B)/sql.o $(B)/pgwire.o
+	ar rcsD $(B)/libtiffanydb.a $(B)/sql.o $(B)/jev.o $(B)/pgwire.o
 
-	$(CC) -shared $(LDFLAGS) -o $(B)/$(LIBFILE) $(B)/sql.o $(B)/pgwire.o
+	$(CC) -shared $(LDFLAGS) -o $(B)/$(LIBFILE) $(B)/sql.o $(B)/jev.o $(B)/pgwire.o
 
 	# --- o objecto partilhado, para o runtime -----------------------------
 	install -d debian/tmp/$(LIBDIR)
