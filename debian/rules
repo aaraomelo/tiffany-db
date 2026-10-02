@@ -90,9 +90,16 @@ override LDFLAGS  := $(_BL) -Wl,-soname,$(SONAME) -Wl,--build-id=none
 
 B := debian/build
 
-# As DUAS unidades de traducao do produto. Mais nada e compilado.
-CORE_SRC := banco/sql.c banco/jev.c
-WIRE_SRC := banco/pgwire.c
+# As TRES unidades de traducao do produto. Mais nada e compilado, e cada uma
+# tem a sua propria invocacao do compilador adiante: o `-c` produz UM objecto
+# por chamada, e um `-o` so pode valer para um fonte.
+#
+# Os tres objectos ficam declarados AQUI, uma vez so, e a prova de existencia, a
+# prova anti-LTO, o `ar` e o `-shared` consomem todos esta lista. Antes eram
+# quatro listas escritas a mao em quatro sitios, e foi por isso que o `jev.o`
+# entrou no `ar` e no `-shared` sem entrar na prova anti-LTO: a lista da prova
+# divergiu das outras e ninguem notou. Uma lista so nao permite isso.
+CORE_OBJ := $(B)/sql.o $(B)/jev.o $(B)/pgwire.o
 
 %:
 	dh $@
@@ -129,11 +136,26 @@ override_dh_auto_install:
 	  *-flto*) echo "ERRO: -flto chegou ao LDFLAGS deste build."; exit 1;; \
 	esac
 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c $(CORE_SRC) -o $(B)/sql.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c $(WIRE_SRC) -o $(B)/pgwire.o
+	# --- D1a: uma invocacao por unidade de traducao -----------------------
+	# `-c banco/sql.c banco/jev.c -o .../sql.o` e recusado pelo gcc ("cannot
+	# specify -o with -c, -S or -E with multiple files") e nao produz NENHUM dos
+	# dois objectos. Como o `jev.o` so passa a ser pedido pelo `ar` e pelo
+	# `-shared` de baixo, nenhuma regra o fabricava e o link nao tinha de onde
+	# tirar o nucleo JEV. Tres linhas, tres objectos, nada derivado em build.
+	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c banco/sql.c    -o $(B)/sql.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c banco/jev.c    -o $(B)/jev.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -Ibanco -Ilib -c banco/pgwire.c -o $(B)/pgwire.o
 
-	# --- e a prova final, sobre os objectos ja escritos -------------------
-	@for o in $(B)/sql.o $(B)/pgwire.o; do \
+	# --- D1b: os tres objectos existem, antes de se provar nada sobre eles ---
+	# A prova de LTO de baixo NAO descobre um objecto em falta: `readelf` de um
+	# ficheiro inexistente nao escreve seccoes, o `grep` nao casa, o `if` nao
+	# entra e o laco "passa". Por isso a existencia prova-se a parte.
+	@for o in $(CORE_OBJ); do \
+	  if [ ! -f "$$o" ]; then echo "ERRO: $$o nao foi produzido."; exit 1; fi; \
+	done; echo "  (os tres objectos foram produzidos, confirmado)"
+
+	# --- D1c: e a prova final, sobre os TRES objectos ja escritos -----------
+	@for o in $(CORE_OBJ); do \
 	  if readelf -S $$o | grep -q '\.gnu\.lto_'; then \
 	    echo "ERRO: $$o tem IR de LTO."; exit 1; \
 	  fi; \
@@ -142,9 +164,9 @@ override_dh_auto_install:
 	# ar em modo determinista (predefinido no binutils actual): a segunda
 	# razao da reprodutibilidade de G11, a par de -g0.
 	rm -f $(B)/libtiffanydb.a
-	ar rcsD $(B)/libtiffanydb.a $(B)/sql.o $(B)/jev.o $(B)/pgwire.o
+	ar rcsD $(B)/libtiffanydb.a $(CORE_OBJ)
 
-	$(CC) -shared $(LDFLAGS) -o $(B)/$(LIBFILE) $(B)/sql.o $(B)/jev.o $(B)/pgwire.o
+	$(CC) -shared $(LDFLAGS) -o $(B)/$(LIBFILE) $(CORE_OBJ)
 
 	# --- o objecto partilhado, para o runtime -----------------------------
 	install -d debian/tmp/$(LIBDIR)
