@@ -156,6 +156,7 @@
 #include "banda.h"
 #include "stratum.h"
 #include "cifra.h"
+#include "jev_api.h"
 /* O CATALOGO. As funcoes dos corpos ja existem — nao se importa nada de fora, e nao se
  * reescreve nada aqui: cr_norma e cr_cmp sao a regua eliptica, e sao as que decidem. */
 #include "corpos.h"
@@ -16206,6 +16207,272 @@ int sql_histograma(const char *tabela, const char *coluna, long *hist, int n,
     }
     if(antes[0]) usa_tabela(antes, 0);
     return dentro;
+}
+
+/* ── HISTOGRAMA JEV — realização C da Choice intervalar ────────────
+ *
+ * Para cada linha viva com S_PRES(i,ncols+j)=1, acumula G_q(j)
+ * com jev_marginal(X). Resultado em arena[D1+j], para j∈[0,k).
+ *
+ * Guardas:  G1 corpo==CORPO_INTEIRO  G2 presença  G3 fora==0
+ *           G4 1≤k≤16  G5 1≤X, X+2k≤16230  G6 fronteiras
+ *           G7 tabela/coluna existem.
+ *
+ * Erros E1..E7 são impressos em out->err e devolvem 0.
+ *
+ * O snapshot/restore da arena é por conta do chamador. */
+static int jev_hist_erros[] = { 0, 0, 0, 0, 0, 0, 0 }; /* E1..E7 contadores */
+
+/* ── base36 decoder ─────────────────────────────────────────────── */
+static int base36_digit(char c){
+    if(c>='0'&&c<='9') return c-'0';
+    if(c>='a'&&c<='z') return c-'a'+10;
+    return -1;
+}
+
+static int spec_decode(const char *spec, long *Xout, int *kout, int *bfront){
+    int len = (int)strlen(spec);
+    /* len = 4 + 3*(k-1), k = (len-4)/3 + 1 */
+    if(len < 4) return -1;
+    if((len - 4) % 3 != 0) return -1;
+    int k = (len - 4) / 3 + 1;
+    if(k < 1 || k > 16) return -1;
+    /* X3 = spec[0:3] */
+    int d0=base36_digit(spec[0]), d1=base36_digit(spec[1]), d2=base36_digit(spec[2]);
+    if(d0<0||d1<0||d2<0) return -1;
+    long X = d0*1296 + d1*36 + d2;
+    if(X < 1) return -1;
+    /* k = spec[3] */
+    int dk = base36_digit(spec[3]);
+    if(dk < 0 || dk != k) return -1;
+    /* B3 blocks */
+    for(int b = 0; b < k-1; b++){
+        int p = 4 + b*3;
+        int e0=base36_digit(spec[p]), e1=base36_digit(spec[p+1]), e2=base36_digit(spec[p+2]);
+        if(e0<0||e1<0||e2<0) return -1;
+        long bv = e0*1296 + e1*36 + e2;
+        bfront[b] = (int)bv;
+    }
+    *Xout = X;
+    *kout = k;
+    return 0;
+}
+
+int sql_hist_jev(const char *tabela, const char *coluna, SqlOut *out,
+                 long *pi1, long *pi2, const char *spec){
+    char antes[64];
+    long nc, nr, X, P, B, S, D1;
+    long hist_local[16384];
+    long maxvivo;
+    int oc, i, j;
+    int k;
+    int *a;
+    unsigned char *snap;
+    unsigned char guardado[JEV_ARENA_BYTES];
+
+    (void)pi2;   /* a assinatura publica mantem o par (pi1, pi2); so `i1` e
+                  * devolvido -- `c1` e `c2` sao 1 por F10, nao lidos de pi2 */
+
+    if(!tabela || !coluna || !out || !spec){
+        snprintf(out ? out->err : NULL, out ? sizeof out->err : 0,
+                 "argumentos nulos");
+        out->ok = 0;
+        return 0;
+    }
+    memset(out, 0, sizeof *out);
+    out->ok = 1; out->ncols = 3; out->nrows = 0;
+    out->tipo[0] = SQL_TIPO_INT4; out->tipo[1] = SQL_TIPO_INT4;
+    out->tipo[2] = SQL_TIPO_INT4;
+    snprintf(out->col[0], sizeof out->col[0], "classe");
+    snprintf(out->col[1], sizeof out->col[1], "gq");
+    snprintf(out->col[2], sizeof out->col[2], "i_total");
+
+    snprintf(antes, sizeof antes, "%s", g_tabela);
+    if(!usa_tabela(tabela, 0)){
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E7: tabela inexistente");
+        return 0;
+    }
+    oc = col_indice(coluna);
+    if(oc < 0){ if(antes[0]) usa_tabela(antes, 0);
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E7: coluna inexistente");
+        return 0; }
+    nc = cat_ncols(); nr = cat_nrows();
+    if(nc <= 0 || nr <= 0){
+        if(antes[0]) usa_tabela(antes, 0);
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E7: tabela vazia");
+        return 0;
+    }
+    /* G1: corpo */
+    { Word c = corpo_de(oc);
+      if(c.total != CORPO_INTEIRO){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[0]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E1: corpo != CORPO_INTEIRO");
+        return 0;
+      }
+      (void)c; }
+    /* G2: presença */
+    for(long i2 = 0; i2 < nr; i2++){
+      if(!bit_le(S_VIVO, i2)) continue;
+      if(!bit_le(S_PRES, i2*nc + oc)){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[1]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E2: presença incompleta");
+        return 0;
+      }
+    }
+    /* G3: fora. O histograma que este bloco constrói é o campo G da
+     * realização — G(x) = |π⁻¹(x)| (redes/jev.tex def:realizacao) — e vive em
+     * hist_local[] para ser copiado para a arena mais abaixo. Antes era
+     * descartado aqui com (void)hist_local e a arena era chamada com G
+     * identicamente nulo. maxvivo guarda o maior valor vivo, que é o que o
+     * limite do SUPORTE (F17, logo após G5) vai comparar com X. */
+    { long fora_local = 0;
+      maxvivo = -1;
+      for(i = 0; i < 16384; i++) hist_local[i] = 0;
+      for(long i2 = 0; i2 < nr; i2++){
+        if(!bit_le(S_VIVO, i2)) continue;
+        long v = celula_valor(i2, oc, nc);
+        if(v >= 0 && v < 16384){ hist_local[v]++; if(v > maxvivo) maxvivo = v; }
+        else fora_local++;
+      }
+      if(fora_local != 0){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[2]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E3: fora=%ld", fora_local);
+        return 0;
+      } }
+    /* |I| — definição congelada */
+    { long I = 0;
+      for(long i2 = 0; i2 < nr; i2++) if(bit_le(S_VIVO, i2)) I++;
+      *pi1 = I;
+      (void)I; }
+    /* Parse spec → X, k, fronteiras */
+    { long Xspec;
+      int kspec;
+      int bspec[16];
+      if(spec_decode(spec, &Xspec, &kspec, bspec) != 0){
+        if(antes[0]) usa_tabela(antes, 0);
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E6: spec inválida");
+        return 0;
+      }
+      X = Xspec; k = kspec;
+      /* G4: k */
+      if(k < 1 || k > 16){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[3]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E4: k=%d", k);
+        return 0;
+      }
+      /* G5: X */
+      if(X < 1 || X + 2*k > 16230){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[4]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err, "E5: X+2k=%ld", X+2*k);
+        return 0;
+      }
+      /* F17 — o limite do SUPORTE. Uma realização é uma aplicação π: I → X
+       * (redes/jev.tex def:realizacao): é total, logo nenhum elemento de I
+       * fica sem imagem. E C: X → {0..|X|-1} é bijecção (campos.tex
+       * def:suporte-coordenado), logo o índice do campo é a coordenada e vive
+       * em 0..|X|-1. Um valor vivo com v ≥ X não é um valor de G que se possa
+       * ignorar: é uma realização INVÁLIDA — contaria para |I| sem ter célula
+       * em G[0..X), e prop:gq-conserva (redes/jev.tex:251) deixaria de valer.
+       *
+       * É o mesmo contrato de E3 — "fora" —, agora com o limite do suporte em
+       * vez do limite do buffer. Não se trunca, não se ignora, não se coloca
+       * noutro sítio, não se infla X, não se toca na spec. */
+      if(maxvivo >= X){
+        if(antes[0]) usa_tabela(antes, 0);
+        jev_hist_erros[2]++;
+        out->ok = 0; snprintf(out->err, sizeof out->err,
+                              "E3: valor vivo %ld fora do suporte 0..%ld",
+                              maxvivo, X-1);
+        return 0;
+      }
+      /* G6: fronteiras */
+      for(int bi = 0; bi < k-1; bi++){
+        if(bspec[bi] <= 0 || bspec[bi] >= X){
+          if(antes[0]) usa_tabela(antes, 0);
+          jev_hist_erros[5]++;
+          out->ok = 0; snprintf(out->err, sizeof out->err, "E6: b%d=%d fora", bi+1, bspec[bi]);
+          return 0;
+        }
+        if(bi > 0 && bspec[bi] <= bspec[bi-1]){
+          if(antes[0]) usa_tabela(antes, 0);
+          jev_hist_erros[5]++;
+          out->ok = 0; snprintf(out->err, sizeof out->err, "E6: b%d<=b%d", bi+1, bi);
+          return 0;
+        }
+      }
+      /* Construir B na arena: B = {0, b1..b{k-1}, X} */
+      snap = (unsigned char *)jev_arena();
+      memcpy(guardado, snap, JEV_ARENA_BYTES);
+      a = (int *)jev_arena();
+      /* F9: a arena recebe o campo G — a[x] = G(x) para x em 0..X-1. Sem esta
+       * cópia o servo era chamado com G ≡ 0 e D1 saía toda a zero. */
+      for(i = 0; i < X; i++) a[i] = hist_local[i];
+      a[X] = *pi1;
+      a[X+1] = 0;              /* n: só marginal_d o lê (jev_core.h:25) */
+      a[X+2] = k; a[X+3] = 1; a[X+4] = 1;
+      a[X+5] = 0;
+      for(j = 1; j < k; j++) a[X+5+j] = bspec[j-1];
+      a[X+5+k] = (int)X;
+      a[X+5+k+1] = 0; a[X+5+k+2] = (int)X;
+      a[X+5+k+3] = 0; a[X+5+k+4] = (int)X;
+      /* F10: o offset de D1. Derivado das MESMAS células e com a MESMA
+       * expressão que a arena usa (banco/jev.c:99-103; o mesmo no oráculo,
+       * tests/test_jev_oraculo.c:118) — de propósito, para que não possa
+       * divergir. S conta FRONTEIRAS, Σ(c_i+1); o 48 conta CÉLULAS DE MARGEM,
+       * 3 classificações × 16, e vive entre D1 e J, nunca dentro de S.
+       * Com (c_0,c_1,c_2)=(k,1,1): S=k+5, D1=X+k+10. */
+      P = X + 2;
+      B = P + 3;
+      S = a[P] + a[P + 1] + a[P + 2] + 3;
+      D1 = B + S;
+      for(i = 0; i < 16; i++) a[D1+i] = 0;
+      goto jev_call;
+    }
+
+jev_call:
+    { int rc = jev_marginal((int)X);
+      if(rc != JEV_OK){
+        memcpy(snap, guardado, JEV_ARENA_BYTES);
+        if(antes[0]) usa_tabela(antes, 0);
+        out->ok = 0; snprintf(out->err, sizeof out->err, "jev_marginal falhou");
+        return 0;
+      }
+      (void)rc; }
+
+    /* INVARIANTE DE CONSERVAÇÃO. prop:gq-conserva (redes/jev.tex:251):
+     * Σ_y G_q(y) = |I|. Isto lê o campo que a primitiva devolveu em D1 — não
+     * recalcula G_q, não tem segunda implementação — e é precisamente a
+     * leitura que teria apanhado F9 (G nulo) e F10 (D1 deslocado 42 ints).
+     * Antes desta correcção a soma era calculada aqui e deitada fora com
+     * (void)soma. */
+    { long soma = 0;
+      for(j = 0; j < k; j++) soma += a[D1+j];
+      if(soma != *pi1){
+        memcpy(snap, guardado, JEV_ARENA_BYTES);
+        if(antes[0]) usa_tabela(antes, 0);
+        out->ok = 0; snprintf(out->err, sizeof out->err,
+                              "jev_marginal: conservacao violada: soma G_q=%ld != |I|=%ld",
+                              soma, *pi1);
+        return 0;
+      } }
+
+    /* Preenche SqlOut */
+    for(j = 0; j < k; j++){
+      int idx = j;
+      snprintf(out->cell[idx][0], SQL_OUT_CELL, "%d", idx);
+      snprintf(out->cell[idx][1], SQL_OUT_CELL, "%d", a[D1+idx]);
+      snprintf(out->cell[idx][2], SQL_OUT_CELL, "%ld", *pi1);
+      out->nrows = (int)k;
+    }
+
+    memcpy(snap, guardado, JEV_ARENA_BYTES);
+    if(antes[0]) usa_tabela(antes, 0);
+    return 1;
 }
 
 /* ── A UNIÃO É O DUAL DO `IN` ────────────────────────────────────────────────
