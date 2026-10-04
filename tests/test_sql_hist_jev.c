@@ -344,6 +344,56 @@ int main(void){
         check("T15", "arena restaurada em sucesso e em erro", arena_intacta, evid);
     }
 
+    /* =====================================================================
+     * T16/T17 — OS DOIS CONTRATOS DE PONTEIRO.
+     *
+     * Nenhum dos dois e crash de compilacao nem de link: sao os dois
+     * desreferenciados em runtime. `out` e desreferenciado DENTRO da guarda
+     * que existe para os proteger, e `pi1` nunca foi verificado — e lido cinco
+     * vezes, a primeira em `*pi1 = I`.
+     *
+     * O contrato: `pi1` e obrigatorio (e o unico canal de |I|; nao ha
+     * documento, teste ou chamador que o faca opcional), logo a resposta certa
+     * e RECUSA-LO, nao aceita-lo. `out` pode ser nulo — e `sql_executa` ja
+     * aceita, por contrato escrito no sql_api.h:112 — logo a resposta e sair
+     * sem escrever em lado nenhum.
+     *
+     * Estes testes so devemCrashar se a correccao for revertida.
+     * ===================================================================== */
+    {
+        /* T16: out nulo nao pode crashar nem escrever. */
+        int r = sql_hist_jev("nom", "c", NULL, &pi1, &pi2, S10K3);
+        snprintf(evid, sizeof evid, "r=%d (esperado 0, sem crash)", r);
+        check("T16", "out==NULL rejeitado sem crash e sem escrita",
+              r == 0, evid);
+    }
+    {
+        /* T17: pi1 nulo nao pode crashar; e recusado como argumento nulo. */
+        int r;
+        memset(&out, 0, sizeof out);
+        pi1 = 0;
+        r = sql_hist_jev("nom", "c", &out, NULL, &pi2, S10K3);
+        snprintf(evid, sizeof evid, "r=%d ok=%d err=\"%s\"", r, out.ok, out.err);
+        check("T17", "pi1==NULL rejeitado com 'argumentos nulos'",
+              r == 0 && out.ok == 0 && strstr(out.err, "argumentos nulos") != NULL,
+              evid);
+    }
+    {
+        /* T18: o caminho normal continua vivo depois da correccao. Uma chamada
+         * real, logo apos as duas rejeicoes, tem de dar o MESMO gq de sempre:
+         * o nominal de T1b, (2,5,3) com |I|=10. E a conservacao de prop:gq-conserva
+         * tem de continuar a fechar — soma G_q = |I|. */
+        char g[3][8];
+        int r = chama("nom", "c", S10K3);
+        for(int j = 0; j < 3; j++) snprintf(g[j], 8, "%s", out.cell[j][1]);
+        snprintf(evid, sizeof evid, "r=%d ok=%d gq=(%s,%s,%s) i1=%ld esperado (2,5,3)",
+                 r, out.ok, g[0], g[1], g[2], pi1);
+        check("T18", "caminho normal intacto apos as duas rejeicoes",
+              r == 1 && out.ok == 1
+              && gqv(0) == 2 && gqv(1) == 5 && gqv(2) == 3
+              && gqv(0) + gqv(1) + gqv(2) == pi1, evid);
+    }
+
     sql_fechar();
 
     printf("\nRESUMO: %d falhas\n", falhas);

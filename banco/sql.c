@@ -16273,7 +16273,15 @@ int sql_hist_jev(const char *tabela, const char *coluna, SqlOut *out,
     (void)pi2;   /* a assinatura publica mantem o par (pi1, pi2); so `i1` e
                   * devolvido -- `c1` e `c2` sao 1 por F10, nao lidos de pi2 */
 
-    if(!tabela || !coluna || !out || !spec){
+    /* `out` e a UNICA saida de texto desta funcao. Sem ele nao ha onde escrever
+     * o erro, e o proprio `out->ok = 0` da guarda abaixo seria o crash — a
+     * guarda dos nulos crashava ao ser chamada com `out` nulo. Sai sem
+     * escrever em lado nenhum.
+     * `pi1` e obrigatorio: e o unico canal de |I| e e lido cinco vezes. Nao ha
+     * contrato nenhum que o faca opcional — ao contrario de `fora` em
+     * sql_histograma, que e `if(fora)` porque e opcional. */
+    if(!out) return 0;
+    if(!tabela || !coluna || !pi1 || !spec){
         snprintf(out ? out->err : NULL, out ? sizeof out->err : 0,
                  "argumentos nulos");
         out->ok = 0;
