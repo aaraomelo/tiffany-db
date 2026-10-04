@@ -143,5 +143,9 @@ extern long sql_ultimos_nos;
 extern long sql_ultimo_prog;
 int  sql_histograma(const char *tabela, const char *coluna, long *hist, int n,
                     long *fora);
+/* a mesma ideia do histograma, mas com o JEV por baixo: as marginais 1-D e d-D
+ * de uma coluna, lidas da tabela e nao de um array em memoria. */
+int  sql_hist_jev(const char *tabela, const char *coluna, SqlOut *out,
+                 long *pi1, long *pi2, const char *spec);
 
 #endif

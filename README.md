@@ -21,13 +21,21 @@ interface pública em C: abre uma base de dados, executa SQL e devolve linhas.
 |---|---|---|
 | Versão | `1.0.0-1` | `debian/changelog` |
 | SONAME | `libtiffanydb.so.1` | medido, build 4 |
-| ABI | 39 símbolos exportados / 39 declarações | medido, build 4 |
+| ABI | 46 símbolos — 43 funções (`T`) + 3 dados (`D/B`) — e 46 declarações | contagem estrutural; a build 4 mediu 39 |
 | Dependências de linkage | `libc.so.6` (glibc `GLIBC_2.2.5`–`GLIBC_2.33`) | medido, build 4 |
 | Pacotes | `libtiffanydb1` (runtime), `libtiffanydb-dev` (desenvolvimento) | `debian/control` |
 | Ambiente de medição | Ubuntu 24.04.4 LTS `amd64`, `cc` 13.3.0, `debhelper-compat` 13 | `RELEASE_MANIFEST…` §2 |
 
 As linhas marcadas *medido* são resultados de inspecção da build 4 nesse
 ambiente. Não são propriedades garantidas noutro toolchain ou noutro host.
+
+A superfície actual são 33 funções `sql_*` (uma delas `sql_hist_jev`), 6 funções
+`jev_*` e 4 funções `pgwire_*` — 43 funções —, mais 3 variáveis `extern long`.
+`sql_hist_jev` passou a integrar a superfície declarada em `banco/sql_api.h`,
+o que repõe o invariante: nada exportado por falta de declaração, nada declarado
+por falta de exportação. O número 46 é contagem estrutural derivada das fontes,
+não uma medição `nm -D`: a única medição `nm -D` deste repositório continua a ser
+a da build 4 (39 símbolos).
 
 ## Porque é que este repositório existe
 

@@ -1,3 +1,24 @@
+libtiffanydb (1.1.0-2) unstable; urgency=low
+
+  * Public API surface: sql_hist_jev is now declared in banco/sql_api.h. It
+    was already exported (added in c6ff1c4); it had simply never been
+    declared in an installed header.
+  * Declaring it adds no exported symbol. It restores the invariant: declared
+    and not exported = 0, exported and not declared = 0.
+  * Structural surface is now 46 symbols = 43 functions (33 sql_*, 6 jev_*,
+    4 pgwire_*) + 3 extern long. This is a count derived from the sources,
+    not an nm -D measurement; the only nm -D measurement on record remains
+    the V1 build (T=36, D/B=3, 39 symbols in total).
+  * This is an update on top of the 45-symbol state recorded in 1.1.0-1. The
+    1.1.0-1 entry below is left as written.
+  * debian/control: the installed public headers are sql_api.h, pgwire_api.h
+    and jev_api.h. jev_api.h was already being installed by debian/rules and
+    listed in libtiffanydb-dev.install, so the omission was a documentation
+    error and not a packaging one.
+  * SONAME, install rules and the two-package split are unchanged.
+
+ -- Tiffany DB Maintainers <tiffanydb@example.invalid>  Sat, 03 Oct 2026 00:00:00 +0000
+
 libtiffanydb (1.1.0-1) unstable; urgency=low
 
   * First Debian/Ubuntu packaging of the Tiffany DB shared library.

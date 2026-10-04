@@ -171,7 +171,7 @@ mesmo orçamento de 96 casos para o provar.
 
 ```
 antes : 39 exportados  (32 funções sql_*, 4 pgwire_*, 3 extern long)
-depois: 45 exportados  (39 + 6)
+depois: 46 exportados  (43 funções T + 3 extern long) = 39 + 6 JEV + sql_hist_jev
 novos  : jev_arena  jev_marginal  jev_escore  jev_duas  jev_marginal_d  jev_proj
 ```
 
@@ -181,7 +181,11 @@ servos `*_raw` também não, e a primeira versão deste trabalho tinha-os a glob
 — 11 símbolos em vez de 6 — o que foi corrigido antes de ser medido outra vez.
 
 `SONAME` mantém-se `libtiffanydb.só.1`: adicionar símbolos não obriga a mudá-lo.
-Nenhum dos 39 é tocado. **A versão proposta é `1.1.0-1`.**
+Nenhum dos 39 anteriores ao JEV é tocado. **A versão proposta é `1.1.0-1`.**
+`sql_hist_jev` — acrescentada depois, em `c6ff1c4` — é a única diferença entre os
+45 e os 46, e a sua declaração em `sql_api.h` fecha a superfície. A contagem 46 é
+estrutural, derivada das fontes; a única medição `nm -D` registada neste
+repositório é `T=36, D/B=3`, do build anterior ao JEV.
 
 ## 6. O que esta execução NÃO fez
 

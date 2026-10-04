@@ -25,11 +25,6 @@
 #include "sql_api.h"
 #include "jev_api.h"
 
-/* sql_hist_jev não está em sql_api.h: não faz parte da porta pública. Declará-lo
- * aqui é o que o torna testável sem alterar a ABI. */
-extern int sql_hist_jev(const char *tabela, const char *coluna, SqlOut *out,
-                        long *pi1, long *pi2, const char *spec);
-
 static int falhas = 0;
 
 static void check(const char *id, const char *desc, int cond, const char *evid){

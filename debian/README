@@ -34,13 +34,19 @@ deles esta a usar o interior da maquina, que nao tem contrato de estabilidade.
 A superficie exportada
 ----------------------
 
-O objecto exporta exactamente 39 simbolos, e os dois cabecalhos publicos
-declaram exactamente esses 39 - nem mais, nem menos. Sao eles:
+O objecto exporta exactamente 46 simbolos, e os tres cabecalhos publicos
+declaram exactamente esses 46 - nem mais, nem menos. Sao eles:
 
-    35 funcoes e objectos sql_*
+    33 funcoes sql_*   (uma delas e sql_hist_jev)
+     6 funcoes jev_*
      4 funcoes pgwire_*
+     3 variaveis extern long
 
-Nao ha outros. Nao ha main, nem _init, nem _fini.
+Sao 43 funcoes (T) e 3 dados (D/B). Nao ha outros. Nao ha main, nem _init,
+nem _fini.
+
+Esta contagem e estrutural, derivada das fontes. A unica medicao `nm -D`
+registada no repositorio continua a ser a do build V1, com 39 simbolos.
 
 
 Ordem de uso
