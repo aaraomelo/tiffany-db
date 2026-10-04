@@ -4,15 +4,25 @@
  *   fonte .... conecthus/backends/wasm/jev/marginal.c
  *              blob de origem 20e64e626ca923d2cddb5d3dcdff20d6b3dbb16b
  *              sha256 do ficheiro d1d5bf8538d221bcc486e31d7b8dccfcb047a0c51891d00987b3de85b048b1e4
- *              8224 bytes, 222 linhas, 5 funcoes: proj, marginal, escore, duas, marginal_d
- *   transporte. As CINCO funcoes entram com o corpo VERBATIM. A única mudança
- *              no ficheiro é o NOME: cada uma passa a chamar-se *_raw, porque a
- *              guarda de proj (jev_core.c) precisa de passar por cima de proj e
- *              não por cima delas. Os corpos das quatro chamadoras continuam a
- *              escrever `proj(...)` — nome, argumentos e ordem intactos.
+ *              8224 bytes, 227 linhas, 5 funcoes: proj, marginal, escore, duas, marginal_d
+ *   transporte. As CINCO funcoes entram com o corpo EQUIVALENTE: codigo identico
+ *              linha a linha ao da fonte. O ficheiro nao e copia literal — os
+ *              comentarios têm a acentuacao restaurada, e ha um bloco de nota
+ *              junto de jev_marginal_d_raw. A mudanca FUNCIONAL nas cinco e
+ *              so o NOME: cada uma passa a chamar-se jev_*_raw. No produto
+ *              as cinco raw sao tambem static — mudanca de LINKAGE, nao de
+ *              comportamento, e e o que impede os *_raw de entrarem no ABI.
+ *              A guarda de proj (banco/jev.c) precisa de passar por cima
+ *              de proj e não por cima delas. Os corpos das quatro
+ *              chamadoras continuam a escrever `proj(...)` — nome,
+ *              argumentos e ordem intactos.
  *   prova ..... 96 casos E1/E2/E3/E4/E5/E5-isolado/E7a/E7b, 65536 bytes de arena
  *              por caso, 6291456 bytes comparados contra o marginal.wasm original:
- *              ZERO diferencas. Ver test_jev_equiv.c.
+ *              ZERO diferencas (medicao historica). Os 96 casos estao versionados
+ *              como gerador em tests/jev_casos.c; o golden (tests/jev_golden.bin),
+ *              o oraculo marginal.wasm e o harness de comparacao NAO estao
+ *              versionados. A reproducao independente nao e possivel a partir do
+ *              repositorio actual.
  *
  * A ARENA E INT32 A PARTIR DO BYTE 8
  * O byte 8 é o mesmo contrato do marginal.wasm, e a razão de ser deste número
@@ -85,9 +95,9 @@
  * repor a cópia que guardou, ou deitar o resultado. */
 #define JEV_ERR_CLASSE   0
 
-/* Os cinco SERVIÇOS são internos a jev_core.c e são static: não entram no ABI.
+/* Os cinco SERVIÇOS são internos a banco/jev.c e são static: não entram no ABI.
  * Não há prototipo aqui de proposito — se o header os declarasse, a definição
- * static de jev_core.c passaria a ser uma declaração nao-static seguida de uma
+ * static de banco/jev.c passaria a ser uma declaração nao-static seguida de uma
  * static, e o compilador recusa. O que eles fazem está nos comentários de
  * origem, dentro do próprio ficheiro, onde essa informação é de jeito.
  *
